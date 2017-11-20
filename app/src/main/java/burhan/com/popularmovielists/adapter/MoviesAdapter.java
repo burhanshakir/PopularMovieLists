@@ -54,7 +54,7 @@ public abstract class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.M
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        Movie movie = movies.get(position);
+        final Movie movie = movies.get(position);
         holder.title.setText(movie.getTitle());
 
         holder.popularity.setText(movie.getPopularity());
@@ -66,6 +66,14 @@ public abstract class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.M
         if(position == getItemCount() -1)
             loadMoreMovies();
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                onClickItem(movie);
+            }
+        });
+
 
     }
 
@@ -75,6 +83,8 @@ public abstract class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.M
     }
 
     public abstract void loadMoreMovies();
+
+    public abstract void onClickItem(Movie movie);
 
 
 

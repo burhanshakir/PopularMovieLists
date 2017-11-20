@@ -2,12 +2,16 @@ package burhan.com.popularmovielists.activity;
 
 import android.content.Context;
 
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
@@ -43,7 +47,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         setGridView();
-        getMovies();
+
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        final NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+
+        if(activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting()) {
+
+            getMovies();
+        }
+        else
+            Toast.makeText(MainActivity.this, "Unable to connect to the internet", Toast.LENGTH_SHORT).show();
+
     }
 
 
@@ -82,21 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     if (movies.isEmpty()) {
                         movies = serverResponse.getResults();
 
-                        adapter = new MoviesAdapter(getApplicationContext(), movies) {
-                            @Override
-                            public void loadMoreMovies() {
-
-
-                                page = String.valueOf(Integer.parseInt(page) + 1);
-
-                                if (Integer.parseInt(serverResponse.getTotalPages()) >= Integer.parseInt(page)) {
-                                    Log.d("Pagination", page);
-                                    getMovies();
-                                }
-
-
-                            }
-                        };
+                        initialiseAdapter();
                         recyclerView.setAdapter(adapter);
 
                     } else {
@@ -111,9 +115,41 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ServerResponse> call, Throwable t) {
 
+                Toast.makeText(MainActivity.this, "Error in Connection.", Toast.LENGTH_SHORT).show();
             }
         });
 
+    }
+
+    private void initialiseAdapter() {
+
+        adapter = new MoviesAdapter(getApplicationContext(), movies) {
+            @Override
+            public void loadMoreMovies() {
+
+
+                page = String.valueOf(Integer.parseInt(page) + 1);
+
+                if (Integer.parseInt(serverResponse.getTotalPages()) >= Integer.parseInt(page)) {
+                    Log.d("Pagination", page);
+                    getMovies();
+                }
+
+            }
+
+            @Override
+            public void onClickItem(Movie movie)
+            {
+                Log.d("Clicked Movie", movie.getTitle());
+
+                Intent intent = new Intent(MainActivity.this, MovieDetails.class);
+                intent.putExtra("movie", movie);
+
+                startActivity(intent);
+
+
+            }
+        };
     }
 
     private String getPage() {

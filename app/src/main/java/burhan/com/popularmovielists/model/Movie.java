@@ -30,6 +30,9 @@ public class Movie implements Serializable
     @SerializedName("release_date")
     String releaseYear;
 
+    @SerializedName("backdrop_path")
+    String posterPath;
+
     public String getId() {
         return id;
     }
@@ -76,5 +79,13 @@ public class Movie implements Serializable
 
     public void setReleaseYear(String releaseYear) {
         this.releaseYear = releaseYear;
+    }
+
+    public String getPosterPath() {
+        return AppConstants.POSTER_URL + posterPath;
+    }
+
+    public void setPosterPath(String posterPath) {
+        this.posterPath = posterPath;
     }
 }
